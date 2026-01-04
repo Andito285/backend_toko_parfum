@@ -21,6 +21,7 @@ public function store(Request $request)
 {
     $request->validate([
         'name' => 'required|string|max:255',
+        'brand' => 'nullable|string|max:255',
         'description' => 'required',
         'price' => 'required|numeric|min:0',
         'stock' => 'required|integer|min:0'
@@ -40,12 +41,13 @@ public function update(Request $request, Perfume $perfume)
 {
     $request->validate([
         'name' => 'sometimes|string|max:255',
+        'brand' => 'nullable|string|max:255',
         'description' => 'sometimes|string',
         'price' => 'sometimes|numeric|min:0',
         'stock' => 'sometimes|integer|min:0'    
     ]);
 
-    $perfume->update($request->only(['name', 'description', 'price', 'stock']));
+    $perfume->update($request->only(['name', 'brand', 'description', 'price', 'stock']));
 
     return response()->json($perfume, 200);
 }
@@ -64,6 +66,7 @@ private function formatPerfumeResponse(Perfume $perfume)
     return [
         'id' => $perfume->id,
         'name' => $perfume->name,
+        'brand' => $perfume->brand,
         'description' => $perfume->description,
         'price' => $perfume->price,
         'stock' => $perfume->stock,

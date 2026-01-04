@@ -12,8 +12,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('orders', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('user_id')->constrained()->onDelete('cascade');
             $table->decimal('total_amount', 10, 2);
             $table->timestamps();
         });
@@ -27,3 +27,4 @@ return new class extends Migration
         Schema::dropIfExists('orders');
     }
 };
+

@@ -2,14 +2,28 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
-    /** @use HasFactory<\Database\Factories\OrderFactory> */
-    // app/Models/Order.php
-    protected $fillable = ['user_id', 'total_amount'];
+    use HasFactory, HasUuids;
+
+    protected $fillable = [
+        'user_id', 
+        'total_amount', 
+        'payment_status', 
+        'payment_proof', 
+        'payment_date', 
+        'verified_at', 
+        'verified_by'
+    ];
+
+    protected $casts = [
+        'payment_date' => 'datetime',
+        'verified_at' => 'datetime',
+    ];
 
     public function user()
     {
@@ -20,5 +34,10 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
-    use HasFactory;
+
+    public function verifiedByUser()
+    {
+        return $this->belongsTo(User::class, 'verified_by');
+    }
 }
+

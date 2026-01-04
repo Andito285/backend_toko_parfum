@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('images', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('perfume_id')->constrained('perfumes')->onDelete('cascade');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('perfume_id')->constrained('perfumes')->onDelete('cascade');
             $table->string('filename');
             $table->string('path');
             $table->string('alt_text')->nullable();
@@ -30,3 +30,4 @@ return new class extends Migration
         Schema::dropIfExists('images');
     }
 };
+

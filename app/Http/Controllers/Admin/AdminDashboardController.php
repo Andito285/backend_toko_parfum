@@ -35,7 +35,6 @@ class AdminDashboardController extends Controller
      */
     public function reports(Request $request)
     {
-        // Daily sales for last 7 days
         $dailySales = collect();
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
@@ -49,7 +48,6 @@ class AdminDashboardController extends Controller
             ]);
         }
 
-        // Monthly sales for last 6 months
         $monthlySales = collect();
         for ($i = 5; $i >= 0; $i--) {
             $month = Carbon::today()->subMonths($i);
@@ -66,13 +64,11 @@ class AdminDashboardController extends Controller
             ]);
         }
 
-        // Top selling perfumes
         $topPerfumes = Perfume::withCount(['images'])
             ->orderBy('stock', 'asc')
             ->take(5)
             ->get();
 
-        // Summary stats
         $totalRevenue = Order::sum('total_amount');
         $totalOrders = Order::count();
         $avgOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
@@ -93,17 +89,64 @@ class AdminDashboardController extends Controller
         ]);
     }
 
-    /**
-     * Get all orders for admin
-     */
+
     public function orders(Request $request)
     {
         $perPage = $request->get('per_page', 15);
+        $status = $request->get('status');
 
-        $orders = Order::with(['user', 'items.perfume'])
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage);
+        $query = Order::with(['user', 'items.perfume.primaryImage', 'verifiedByUser'])
+            ->orderBy('created_at', 'desc');
+
+        if ($status) {
+            $query->where('payment_status', $status);
+        }
+
+        $orders = $query->paginate($perPage);
 
         return response()->json($orders);
+    }
+
+
+    public function verifyPayment(Request $request, Order $order)
+    {
+        if ($order->payment_status !== 'paid') {
+            return response()->json(['error' => 'Order belum memiliki bukti pembayaran'], 400);
+        }
+
+        $order->update([
+            'payment_status' => 'verified',
+            'verified_at' => now(),
+            'verified_by' => $request->user()->id,
+        ]);
+
+        return response()->json([
+            'message' => 'Pembayaran berhasil diverifikasi',
+            'order' => $order->load(['items.perfume.primaryImage', 'user', 'verifiedByUser'])
+        ]);
+    }
+
+
+    public function rejectPayment(Request $request, Order $order)
+    {
+        if ($order->payment_status !== 'paid') {
+            return response()->json(['error' => 'Order belum memiliki bukti pembayaran'], 400);
+        }
+
+
+        if ($order->payment_proof) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($order->payment_proof);
+        }
+
+        $order->update([
+            'payment_status' => 'pending',
+            'payment_proof' => null,
+            'payment_date' => null,
+        ]);
+
+        return response()->json([
+            'message' => 'Pembayaran ditolak, user dapat mengupload ulang bukti pembayaran',
+            'order' => $order->load(['items.perfume.primaryImage', 'user'])
+        ]);
     }
 }

@@ -9,11 +9,10 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    // database/migrations/..._create_perfumes_table.php
     public function up()
     {
         Schema::create('perfumes', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('name');
             $table->text('description');
             $table->decimal('price', 10, 2);
@@ -30,3 +29,4 @@ return new class extends Migration
         Schema::dropIfExists('perfumes');
     }
 };
+

@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PerfumeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 
 
@@ -23,6 +24,8 @@ Route::middleware('auth:api')->group(function () {
     
     Route::post('/orders', [OrderController::class, 'store']);
     Route::get('/orders', [OrderController::class, 'index']);
+    Route::get('/orders/{order}', [PaymentController::class, 'show']);
+    Route::post('/orders/{order}/payment', [PaymentController::class, 'uploadProof']);
 
     
     Route::middleware('role:admin')->prefix('admin')->group(function () {
@@ -34,7 +37,7 @@ Route::middleware('auth:api')->group(function () {
 
         
         Route::get('/perfumes/{perfume}/images', [ImageController::class, 'index']);
-        Route::put('/perfumes/{perfume}/images', [ImageController::class, 'storeSingle']);
+        Route::post('/perfumes/{perfume}/images', [ImageController::class, 'storeSingle']);
         Route::post('/perfumes/{perfume}/images/batch', [ImageController::class, 'store']);
         Route::put('/perfumes/{perfume}/images/{image}/primary', [ImageController::class, 'setPrimary']);
         Route::delete('/perfumes/{perfume}/images/{image}', [ImageController::class, 'destroy']);
@@ -48,6 +51,8 @@ Route::middleware('auth:api')->group(function () {
         
         Route::get('/reports', [AdminDashboardController::class, 'reports']);
         Route::get('/orders', [AdminDashboardController::class, 'orders']);
+        Route::put('/orders/{order}/verify', [AdminDashboardController::class, 'verifyPayment']);
+        Route::put('/orders/{order}/reject', [AdminDashboardController::class, 'rejectPayment']);
     });
 
     

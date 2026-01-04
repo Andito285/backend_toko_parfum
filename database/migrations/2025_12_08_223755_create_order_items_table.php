@@ -12,11 +12,11 @@ return new class extends Migration
     public function up()
     {
         Schema::create('order_items', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('order_id')->constrained()->onDelete('cascade');
-            $table->foreignId('perfume_id')->constrained()->onDelete('cascade');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('order_id')->constrained()->onDelete('cascade');
+            $table->foreignUuid('perfume_id')->constrained()->onDelete('cascade');
             $table->integer('quantity');
-            $table->decimal('price', 10, 2); // harga saat pembelian
+            $table->decimal('price', 10, 2);
             $table->timestamps();
         });
     }
@@ -29,3 +29,4 @@ return new class extends Migration
         Schema::dropIfExists('order_items');
     }
 };
+

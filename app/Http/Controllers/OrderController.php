@@ -13,7 +13,7 @@ class OrderController extends Controller
 
 public function index(Request $request)
 {
-    return $request->user()->orders()->with('items.perfume')->get();
+    return $request->user()->orders()->with('items.perfume.primaryImage')->get();
 }
 
 public function store(Request $request)
@@ -58,6 +58,6 @@ public function store(Request $request)
         $perfume->decrement('stock', $item['quantity']);
     }
 
-    return response()->json($order->load('items.perfume'), 201);
+    return response()->json($order->load('items.perfume.primaryImage'), 201);
 }
 }
